@@ -12,25 +12,50 @@ const BasicForm = (props) => {
     inputBlurHandler: nameBlurHandler,
     reset: resetNameValue,
   } = useNewinput((value) => value.trim() !== "");
-
-  useEffect(() => {
-    if (isNameInputValid) {
-      setIsFormValid(true);
-    } else {
-      setIsFormValid(false);
-    }
-  }, [isNameInputValid]);
-  let formSubmitionHandler = (event) => {
-    event.preventDefault();
-    if (!isNameInputValid) {
-      return;
-    }
-    resetNameValue();
-  };
+  const {
+    value: enteredLastNameValue,
+    hasError: hasLastNameError,
+    isEnteredValueValid: isLastNameInputValid,
+    inputChangeHandler: lastNameInputHandler,
+    inputBlurHandler: lastNameBlurHandler,
+    reset: resetLastNameValue,
+  } = useNewinput((value) => value.trim() !== "");
+  const {
+    value: enteredEmailValue,
+    hasError: hasEmailError,
+    isEnteredValueValid: isEmailInputValid,
+    inputChangeHandler: emailInputHandler,
+    inputBlurHandler: emailBlurHandler,
+    reset: resetEmailValue,
+  } = useNewinput((value) => value.includes("@"));
 
   let nameControlClasses = hasNameError
     ? "form-control invalid"
     : "form-control";
+  let lastNameControlClasses = hasLastNameError
+    ? "form-control invalid"
+    : "form-control";
+  let emailControlClasses = hasEmailError
+    ? "form-control invalid"
+    : "form-control";
+
+  useEffect(() => {
+    if (isNameInputValid && isLastNameInputValid && isEmailInputValid) {
+      setIsFormValid(true);
+    } else {
+      setIsFormValid(false);
+    }
+  }, [isNameInputValid, isEmailInputValid, isLastNameInputValid]);
+
+  let formSubmitionHandler = (event) => {
+    event.preventDefault();
+    if (!isNameInputValid || !isEmailInputValid || !isLastNameInputValid) {
+      return;
+    }
+    resetNameValue();
+    resetEmailValue();
+    resetLastNameValue();
+  };
 
   return (
     <form onSubmit={formSubmitionHandler}>
@@ -46,14 +71,32 @@ const BasicForm = (props) => {
           />
           {hasNameError && <p className="error-text">Please enter name</p>}
         </div>
-        <div className="form-control">
-          <label htmlFor="name">Last Name</label>
-          <input type="text" id="name" />
+        <div className={lastNameControlClasses}>
+          <label htmlFor="lastName">Last Name</label>
+          <input
+            type="text"
+            id="lastName"
+            onChange={lastNameInputHandler}
+            onBlur={lastNameBlurHandler}
+            value={enteredLastNameValue}
+          />
+          {hasLastNameError && (
+            <p className="error-text">Please enter last name</p>
+          )}
         </div>
       </div>
-      <div className="form-control">
-        <label htmlFor="name">E-Mail Address</label>
-        <input type="text" id="name" />
+      <div className={emailControlClasses}>
+        <label htmlFor="email">E-Mail Address</label>
+        <input
+          type="text"
+          id="email"
+          onChange={emailInputHandler}
+          onBlur={emailBlurHandler}
+          value={enteredEmailValue}
+        />
+        {hasEmailError && (
+          <p className="error-text">Please enter valid email</p>
+        )}
       </div>
       <div className="form-actions">
         <button disabled={!isFormValid}>Submit</button>
